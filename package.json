@@ -1,9 +1,9 @@
 {
-  "name": "fixit",
+  "name": "fixit-terminal-ai",
   "displayName": "FixIt",
   "description": "Explain and fix terminal errors with your own LLM API key",
-  "version": "0.1.0",
-  "publisher": "VanshikaLovesSumit2026",
+  "version": "0.1.1",
+  "publisher": "SumitJha2002",
   "license": "MIT",
   "engines": {
     "vscode": "^1.93.0"
@@ -82,7 +82,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "vsce package --no-dependencies",
+    "package": "vsce package --no-dependencies --allow-missing-repository",
     "lint": "tsc -p ./ --noEmit"
   },
   "devDependencies": {
