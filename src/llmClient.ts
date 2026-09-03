@@ -4,7 +4,7 @@ export const API_KEY_SECRET = 'fixit.apiKey';
 
 export class MissingApiKeyError extends Error {
   constructor() {
-    super('FixIt API key is not set. Run "FixIt: Set API Key" first.');
+    super('LetsFix API key is not set. Run "LetsFix: Set API Key" first.');
     this.name = 'MissingApiKeyError';
   }
 }
