@@ -1,0 +1,94 @@
+{
+  "name": "fixit",
+  "displayName": "FixIt",
+  "description": "Explain and fix terminal errors with your own LLM API key",
+  "version": "0.1.0",
+  "publisher": "fixit",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "terminal",
+    "error",
+    "explain",
+    "fix",
+    "ai",
+    "llm"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "fixit.explainLastError",
+        "title": "FixIt: Explain Last Error"
+      },
+      {
+        "command": "fixit.fixLastError",
+        "title": "FixIt: Fix Last Error"
+      },
+      {
+        "command": "fixit.explainSelection",
+        "title": "FixIt: Explain Selection"
+      },
+      {
+        "command": "fixit.setApiKey",
+        "title": "FixIt: Set API Key"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "fixit.explainLastError",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e"
+      },
+      {
+        "command": "fixit.fixLastError",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f"
+      }
+    ],
+    "configuration": {
+      "title": "FixIt",
+      "properties": {
+        "fixit.provider.baseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "OpenAI-compatible API base URL (e.g. https://api.openai.com/v1, https://api.groq.com/openai/v1, https://openrouter.ai/api/v1)."
+        },
+        "fixit.provider.model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Model name to use for explain/fix requests."
+        },
+        "fixit.maxOutputChars": {
+          "type": "number",
+          "default": 12000,
+          "minimum": 1000,
+          "maximum": 100000,
+          "description": "Maximum characters of terminal output to send to the model."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies",
+    "lint": "tsc -p ./ --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.93.0",
+    "@vscode/vsce": "^3.2.0",
+    "typescript": "^5.5.0"
+  }
+}
