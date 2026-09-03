@@ -17,7 +17,7 @@ function getEditorOrTerminalSelection(): string | undefined {
 
 async function promptForApiKey(secrets: vscode.SecretStorage): Promise<boolean> {
   const key = await vscode.window.showInputBox({
-    title: 'FixIt: Set API Key',
+    title: 'LetsFix: Set API Key',
     prompt: 'Enter your OpenAI-compatible API key (stored securely in VS Code Secret Storage)',
     password: true,
     ignoreFocusOut: true,
@@ -27,7 +27,7 @@ async function promptForApiKey(secrets: vscode.SecretStorage): Promise<boolean> 
     return false;
   }
   await setApiKey(secrets, key);
-  void vscode.window.showInformationMessage('FixIt API key saved.');
+  void vscode.window.showInformationMessage('LetsFix API key saved.');
   return true;
 }
 
@@ -46,7 +46,7 @@ async function runMode(
     const text = getEditorOrTerminalSelection();
     if (!text?.trim()) {
       void vscode.window.showWarningMessage(
-        'FixIt: select error text in the editor (or copy it into an editor) first, then run Explain Selection.'
+        'LetsFix: select error text in the editor (or copy it into an editor) first, then run Explain Selection.'
       );
       return;
     }
@@ -65,7 +65,7 @@ async function runMode(
 
   if (!source) {
     void vscode.window.showWarningMessage(
-      'FixIt: no terminal error captured yet. Run a failing command in the integrated terminal (with shell integration), or select error text and use Explain Selection.'
+      'LetsFix: no terminal error captured yet. Run a failing command in the integrated terminal (with shell integration), or select error text and use Explain Selection.'
     );
     return;
   }
@@ -73,8 +73,8 @@ async function runMode(
   const ctx = await buildContext(mode, source);
   const title =
     mode === 'explain'
-      ? 'FixIt — Explain'
-      : 'FixIt — Fix';
+      ? 'LetsFix — Explain'
+      : 'LetsFix — Fix';
   const out = clearAndShow(title);
 
   if (source.kind === 'command') {
@@ -94,7 +94,7 @@ async function runMode(
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: mode === 'explain' ? 'FixIt is explaining…' : 'FixIt is drafting a fix…',
+        title: mode === 'explain' ? 'LetsFix is explaining…' : 'LetsFix is drafting a fix…',
         cancellable: true,
       },
       async (_progress, token) => {
@@ -136,7 +136,7 @@ async function runMode(
     }
     const message = err instanceof Error ? err.message : String(err);
     out.appendLine(`\n\nError: ${message}`);
-    void vscode.window.showErrorMessage(`FixIt: ${message}`);
+    void vscode.window.showErrorMessage(`LetsFix: ${message}`);
   }
 }
 
