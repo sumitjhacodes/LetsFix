@@ -12,7 +12,7 @@ Marketplace ID: `SumitJha2002.letsfix`
 
 1. Build the package (see [Develop](#develop)).
 2. In VS Code or Cursor: **Extensions** → `⋯` → **Install from VSIX…**
-3. Select the generated `letsfix-1.0.0.vsix`.
+3. Select the generated `letsfix-1.0.2.vsix`.
 
 ### From source (Extension Development Host)
 
@@ -49,7 +49,7 @@ LetsFix uses the VS Code **Terminal Shell Integration** API (requires VS Code / 
 ```bash
 npm install
 npm run compile
-npm run package    # creates letsfix-1.0.0.vsix
+npm run package    # creates letsfix-1.0.2.vsix
 ```
 
 ### Manual smoke checklist

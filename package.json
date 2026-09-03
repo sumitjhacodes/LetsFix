@@ -2,9 +2,10 @@
   "name": "letsfix",
   "displayName": "LetsFix",
   "description": "Explain and fix failed terminal commands with your own OpenAI-compatible API key",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "publisher": "SumitJha2002",
   "license": "MIT",
+  "icon": "assets/LetsFix.png",
   "engines": {
     "vscode": "^1.93.0"
   },
