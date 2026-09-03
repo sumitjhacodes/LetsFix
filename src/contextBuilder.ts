@@ -64,7 +64,7 @@ async function gatherFileSnippets(output: string, maxFiles = 3, maxLines = 40): 
 function systemPromptFor(mode: FixItMode): string {
   if (mode === 'explain') {
     return [
-      'You are FixIt, a helpful assistant that explains terminal and build errors.',
+      'You are LetsFix, a helpful assistant that explains terminal and build errors.',
       'Explain what failed and why in plain English.',
       'Suggest what to check next.',
       'Do not invent secrets, credentials, or private data.',
@@ -72,7 +72,7 @@ function systemPromptFor(mode: FixItMode): string {
     ].join(' ');
   }
   return [
-    'You are FixIt, a helpful assistant that fixes terminal and build errors.',
+    'You are LetsFix, a helpful assistant that fixes terminal and build errors.',
     'Give concrete steps and exact commands when safe.',
     'Never invent secrets or credentials; say when more information is needed.',
     'Do not claim you already ran commands or edited files.',
