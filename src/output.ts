@@ -4,7 +4,7 @@ let channel: vscode.OutputChannel | undefined;
 
 export function getOutputChannel(): vscode.OutputChannel {
   if (!channel) {
-    channel = vscode.window.createOutputChannel('FixIt');
+    channel = vscode.window.createOutputChannel('LetsFix');
   }
   return channel;
 }
