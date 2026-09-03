@@ -1,8 +1,8 @@
 {
   "name": "fixit-terminal-ai",
-  "displayName": "FixIt",
+  "displayName": "FixIt Terminal AI",
   "description": "Explain and fix terminal errors with your own LLM API key",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "SumitJha2002",
   "license": "MIT",
   "engines": {

@@ -10,7 +10,7 @@ When a command fails in the integrated terminal, run **FixIt: Explain Last Error
 
 1. Build the package (see [Develop](#develop)).
 2. In VS Code or Cursor: **Extensions** → `⋯` → **Install from VSIX…**
-3. Select the generated `fixit-terminal-ai-0.1.1.vsix`.
+3. Select the generated `fixit-terminal-ai-0.1.2.vsix`.
 
 ### From source (Extension Development Host)
 
@@ -47,7 +47,7 @@ FixIt uses the VS Code **Terminal Shell Integration** API (requires VS Code / Cu
 ```bash
 npm install
 npm run compile
-npm run package    # creates fixit-terminal-ai-0.1.1.vsix
+npm run package    # creates fixit-terminal-ai-0.1.2.vsix
 ```
 
 ### Manual smoke checklist
