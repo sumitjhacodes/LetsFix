@@ -11,3 +11,6 @@ node_modules/**
 .plan.md
 agent-tools/**
 **/.DS_Store
+
+# Do not ship the full-resolution source; marketplace uses assets/LetsFix.png
+assets/LetsFix-source.png
