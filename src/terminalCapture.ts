@@ -102,7 +102,7 @@ export class TerminalCapture {
 
   private updateStatusBar(entry: CapturedCommand): void {
     if (entry.exitCode !== undefined && entry.exitCode !== 0) {
-      this.statusBar.text = '$(error) FixIt: error — click to explain';
+      this.statusBar.text = '$(error) LetsFix: error — click to explain';
       this.statusBar.tooltip = `Last failed: ${entry.commandLine || '(unknown command)'} (exit ${entry.exitCode})`;
       this.statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
       this.statusBar.show();
