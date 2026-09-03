@@ -3,7 +3,7 @@
   "displayName": "FixIt",
   "description": "Explain and fix terminal errors with your own LLM API key",
   "version": "0.1.0",
-  "publisher": "fixit",
+  "publisher": "VanshikaLovesSumit2026",
   "license": "MIT",
   "engines": {
     "vscode": "^1.93.0"
