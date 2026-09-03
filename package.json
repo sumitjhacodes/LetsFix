@@ -1,8 +1,8 @@
 {
-  "name": "fixit-terminal-ai",
-  "displayName": "FixIt Terminal AI",
-  "description": "Explain and fix terminal errors with your own LLM API key",
-  "version": "0.1.2",
+  "name": "letsfix",
+  "displayName": "LetsFix",
+  "description": "Explain and fix failed terminal commands with your own OpenAI-compatible API key",
+  "version": "1.0.0",
   "publisher": "SumitJha2002",
   "license": "MIT",
   "engines": {
@@ -13,12 +13,16 @@
     "Machine Learning"
   ],
   "keywords": [
+    "letsfix",
     "terminal",
-    "error", 
+    "shell",
+    "error",
     "explain",
     "fix",
+    "command",
     "ai",
-    "llm"
+    "llm",
+    "debugging"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -28,19 +32,19 @@
     "commands": [
       {
         "command": "fixit.explainLastError",
-        "title": "FixIt: Explain Last Error"
+        "title": "LetsFix: Explain Last Error"
       },
       {
         "command": "fixit.fixLastError",
-        "title": "FixIt: Fix Last Error"
+        "title": "LetsFix: Fix Last Error"
       },
       {
         "command": "fixit.explainSelection",
-        "title": "FixIt: Explain Selection"
+        "title": "LetsFix: Explain Selection"
       },
       {
         "command": "fixit.setApiKey",
-        "title": "FixIt: Set API Key"
+        "title": "LetsFix: Set API Key"
       }
     ],
     "keybindings": [
@@ -56,7 +60,7 @@
       }
     ],
     "configuration": {
-      "title": "FixIt",
+      "title": "LetsFix",
       "properties": {
         "fixit.provider.baseUrl": {
           "type": "string",
