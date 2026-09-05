@@ -67,6 +67,7 @@ function systemPromptFor(mode: FixItMode): string {
       'You are LetsFix, a helpful assistant that explains terminal and build errors.',
       'Explain what failed and why in plain English.',
       'Suggest what to check next.',
+      'If you recommend shell commands, put each in a fenced code block tagged bash or powershell.',
       'Do not invent secrets, credentials, or private data.',
       'Keep the answer concise and practical.',
     ].join(' ');
@@ -74,6 +75,7 @@ function systemPromptFor(mode: FixItMode): string {
   return [
     'You are LetsFix, a helpful assistant that fixes terminal and build errors.',
     'Give concrete steps and exact commands when safe.',
+    'Put every runnable shell command in its own fenced code block tagged bash or powershell (no prose inside the fence).',
     'Never invent secrets or credentials; say when more information is needed.',
     'Do not claim you already ran commands or edited files.',
     'Prefer the smallest safe fix. Keep the answer concise and actionable.',

@@ -8,6 +8,8 @@ export interface CapturedCommand {
   endedAt: number;
 }
 
+export type FailureHandler = (entry: CapturedCommand) => void;
+
 const MAX_BUFFER = 20;
 const ANSI_RE = /\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]/g;
 
@@ -20,11 +22,17 @@ export class TerminalCapture {
   private readonly inFlight = new Map<object, { chunks: string[]; commandLine: string; cwd?: string }>();
   private readonly statusBar: vscode.StatusBarItem;
   private disposables: vscode.Disposable[] = [];
+  private onFailure?: FailureHandler;
+  private lastAutoExplainAt = 0;
 
   constructor() {
     this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBar.command = 'fixit.explainLastError';
     this.statusBar.hide();
+  }
+
+  setFailureHandler(handler: FailureHandler | undefined): void {
+    this.onFailure = handler;
   }
 
   start(): void {
@@ -68,6 +76,14 @@ export class TerminalCapture {
           this.buffer.shift();
         }
         this.updateStatusBar(entry);
+
+        if (entry.exitCode !== undefined && entry.exitCode !== 0) {
+          const now = Date.now();
+          if (now - this.lastAutoExplainAt >= 2500) {
+            this.lastAutoExplainAt = now;
+            this.onFailure?.(entry);
+          }
+        }
       }),
       this.statusBar
     );
@@ -80,6 +96,7 @@ export class TerminalCapture {
     this.disposables = [];
     this.inFlight.clear();
     this.buffer.length = 0;
+    this.onFailure = undefined;
   }
 
   getLastFailed(): CapturedCommand | undefined {

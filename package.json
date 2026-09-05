@@ -2,7 +2,7 @@
   "name": "letsfix",
   "displayName": "LetsFix",
   "description": "Explain and fix failed terminal commands with your own API key — OpenAI, Claude, Gemini, Grok, Kimi, and more",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "SumitJha2002",
   "license": "MIT",
   "icon": "assets/LetsFix.png",
@@ -77,6 +77,25 @@
         "mac": "cmd+alt+f"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "fixit.explainSelection",
+          "when": "editorHasSelection",
+          "group": "letsfix@1"
+        }
+      ],
+      "terminal/context": [
+        {
+          "command": "fixit.explainLastError",
+          "group": "letsfix@1"
+        },
+        {
+          "command": "fixit.fixLastError",
+          "group": "letsfix@2"
+        }
+      ]
+    },
     "configuration": {
       "title": "LetsFix",
       "properties": {
@@ -121,6 +140,11 @@
           "minimum": 1000,
           "maximum": 100000,
           "description": "Maximum characters of terminal output to send to the model."
+        },
+        "fixit.autoExplainOnFail": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, automatically explain the last failed terminal command (debounced; skips noisy commands like ls/cd/clear)."
         }
       }
     }

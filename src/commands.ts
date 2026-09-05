@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
+import { extractShellCommands } from './commandExtract';
 import { buildContext, type FixItMode } from './contextBuilder';
 import { MissingApiKeyError, setApiKey, streamChatCompletion } from './llmClient';
 import { clearAndShow } from './output';
+import { FixPanel } from './fixPanel';
 import {
   applyProviderPreset,
   getPreset,
@@ -10,6 +12,8 @@ import {
   type ProviderPreset,
 } from './providers';
 import type { TerminalCapture } from './terminalCapture';
+
+let busy = false;
 
 function getEditorOrTerminalSelection(): string | undefined {
   const editor = vscode.window.activeTextEditor;
@@ -114,12 +118,19 @@ async function promptForModel(): Promise<void> {
   void vscode.window.showInformationMessage(`LetsFix model set to ${model.trim()}.`);
 }
 
-async function runMode(
+export async function runMode(
   mode: FixItMode,
   capture: TerminalCapture,
   secrets: vscode.SecretStorage,
-  options: { selectionOnly?: boolean } = {}
+  options: { selectionOnly?: boolean; quiet?: boolean } = {}
 ): Promise<void> {
+  if (busy) {
+    if (!options.quiet) {
+      void vscode.window.showInformationMessage('LetsFix is already working on a request.');
+    }
+    return;
+  }
+
   let source:
     | { kind: 'command'; command: NonNullable<ReturnType<TerminalCapture['getBestForExplain']>> }
     | { kind: 'selection'; text: string }
@@ -128,9 +139,11 @@ async function runMode(
   if (options.selectionOnly) {
     const text = getEditorOrTerminalSelection();
     if (!text?.trim()) {
-      void vscode.window.showWarningMessage(
-        'LetsFix: select error text in the editor (or copy it into an editor) first, then run Explain Selection.'
-      );
+      if (!options.quiet) {
+        void vscode.window.showWarningMessage(
+          'LetsFix: select error text in the editor (or copy it into an editor) first, then run Explain Selection.'
+        );
+      }
       return;
     }
     source = { kind: 'selection', text };
@@ -147,12 +160,15 @@ async function runMode(
   }
 
   if (!source) {
-    void vscode.window.showWarningMessage(
-      'LetsFix: no terminal error captured yet. Run a failing command in the integrated terminal (with shell integration), or select error text and use Explain Selection.'
-    );
+    if (!options.quiet) {
+      void vscode.window.showWarningMessage(
+        'LetsFix: no terminal error captured yet. Run a failing command in the integrated terminal (with shell integration), or select error text and use Explain Selection.'
+      );
+    }
     return;
   }
 
+  busy = true;
   const provider = resolveProvider();
   const ctx = await buildContext(mode, source);
   const title = mode === 'explain' ? 'LetsFix — Explain' : 'LetsFix — Fix';
@@ -170,6 +186,7 @@ async function runMode(
   out.appendLine('');
 
   const controller = new AbortController();
+  let fullReply = '';
 
   try {
     await vscode.window.withProgress(
@@ -190,6 +207,7 @@ async function runMode(
             ],
             controller.signal
           )) {
+            fullReply += chunk;
             out.append(chunk);
           }
           out.appendLine('');
@@ -204,12 +222,25 @@ async function runMode(
         }
       }
     );
+
+    const commands = extractShellCommands(fullReply);
+    if (commands.length > 0) {
+      FixPanel.show(
+        mode === 'fix' ? 'LetsFix — Suggested fixes' : 'LetsFix — Suggested commands',
+        fullReply,
+        commands
+      );
+    }
   } catch (err) {
     if (err instanceof MissingApiKeyError) {
+      if (options.quiet) {
+        return;
+      }
       const set = await vscode.window.showWarningMessage(err.message, 'Set API Key');
       if (set === 'Set API Key') {
         const ok = await promptForApiKey(secrets);
         if (ok) {
+          busy = false;
           await runMode(mode, capture, secrets, options);
         }
       }
@@ -217,8 +248,25 @@ async function runMode(
     }
     const message = err instanceof Error ? err.message : String(err);
     out.appendLine(`\n\nError: ${message}`);
-    void vscode.window.showErrorMessage(`LetsFix: ${message}`);
+    if (!options.quiet) {
+      void vscode.window.showErrorMessage(`LetsFix: ${message}`);
+    }
+  } finally {
+    busy = false;
   }
+}
+
+const NOISY_COMMANDS = /^(clear|cls|ls|dir|pwd|cd|echo|type|cat|which|where)\b/i;
+
+export function shouldAutoExplain(commandLine: string): boolean {
+  const trimmed = commandLine.trim();
+  if (!trimmed) {
+    return false;
+  }
+  if (NOISY_COMMANDS.test(trimmed)) {
+    return false;
+  }
+  return true;
 }
 
 export function registerCommands(
