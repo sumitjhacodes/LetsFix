@@ -1,8 +1,8 @@
 {
   "name": "letsfix",
   "displayName": "LetsFix",
-  "description": "Explain and fix failed terminal commands with your own OpenAI-compatible API key",
-  "version": "1.0.3",
+  "description": "Explain and fix failed terminal commands with your own API key — OpenAI, Claude, Gemini, Grok, Kimi, and more",
+  "version": "1.1.0",
   "publisher": "SumitJha2002",
   "license": "MIT",
   "icon": "assets/LetsFix.png",
@@ -27,6 +27,11 @@
     "command",
     "ai",
     "llm",
+    "openai",
+    "claude",
+    "gemini",
+    "grok",
+    "kimi",
     "debugging"
   ],
   "activationEvents": [
@@ -50,6 +55,14 @@
       {
         "command": "fixit.setApiKey",
         "title": "LetsFix: Set API Key"
+      },
+      {
+        "command": "fixit.chooseProvider",
+        "title": "LetsFix: Choose AI Provider"
+      },
+      {
+        "command": "fixit.setModel",
+        "title": "LetsFix: Set Model"
       }
     ],
     "keybindings": [
@@ -67,15 +80,40 @@
     "configuration": {
       "title": "LetsFix",
       "properties": {
+        "fixit.provider.id": {
+          "type": "string",
+          "default": "openai",
+          "enum": [
+            "openai",
+            "anthropic",
+            "google",
+            "groq",
+            "xai",
+            "moonshot",
+            "openrouter",
+            "custom"
+          ],
+          "enumDescriptions": [
+            "OpenAI GPT models",
+            "Anthropic Claude (native API)",
+            "Google Gemini (native API)",
+            "Groq OpenAI-compatible",
+            "xAI Grok OpenAI-compatible",
+            "Moonshot / Kimi OpenAI-compatible",
+            "OpenRouter (many models via one key)",
+            "Any custom OpenAI-compatible base URL"
+          ],
+          "description": "Which AI provider LetsFix should call."
+        },
         "fixit.provider.baseUrl": {
           "type": "string",
           "default": "https://api.openai.com/v1",
-          "description": "OpenAI-compatible API base URL (e.g. https://api.openai.com/v1, https://api.groq.com/openai/v1, https://openrouter.ai/api/v1)."
+          "description": "API base URL. Auto-filled when you pick a provider; override for Custom endpoints."
         },
         "fixit.provider.model": {
           "type": "string",
           "default": "gpt-4o-mini",
-          "description": "Model name to use for explain/fix requests."
+          "description": "Model id (e.g. gpt-4o-mini, claude-sonnet-4-5, gemini-2.0-flash, grok-2-latest)."
         },
         "fixit.maxOutputChars": {
           "type": "number",
