@@ -1,6 +1,6 @@
 # LetsFix
 
-Explain and fix terminal errors in VS Code / Cursor using your own OpenAI-compatible API key.
+Explain and fix terminal errors in VS Code / Cursor using **your own** API key — OpenAI, Claude, Gemini, Grok, Kimi, Groq, OpenRouter, or any OpenAI-compatible endpoint.
 
 When a command fails in the integrated terminal, run **LetsFix: Explain Last Error** or **LetsFix: Fix Last Error**. LetsFix sends the last failed command, exit code, output, and light file context to your LLM and streams the answer into the **LetsFix** output channel.
 
@@ -12,7 +12,7 @@ Marketplace ID: `SumitJha2002.letsfix`
 
 1. Build the package (see [Develop](#develop)).
 2. In VS Code or Cursor: **Extensions** → `⋯` → **Install from VSIX…**
-3. Select the generated `letsfix-1.0.3.vsix`.
+3. Select the generated `letsfix-1.1.0.vsix`.
 
 ### From source (Extension Development Host)
 
@@ -22,12 +22,27 @@ Marketplace ID: `SumitJha2002.letsfix`
 
 ## Setup
 
-1. Command Palette → **LetsFix: Set API Key** — paste an OpenAI-compatible key (stored in Secret Storage, not settings).
-2. Optional settings (`Settings` → search `LetsFix`):
-   - `fixit.provider.baseUrl` — default `https://api.openai.com/v1`  
-     Also works with Groq (`https://api.groq.com/openai/v1`), OpenRouter (`https://openrouter.ai/api/v1`), etc.
-   - `fixit.provider.model` — default `gpt-4o-mini`
+1. Command Palette → **LetsFix: Choose AI Provider**  
+   Pick OpenAI, Anthropic (Claude), Google (Gemini), xAI (Grok), Moonshot (Kimi), Groq, OpenRouter, or Custom.
+2. Command Palette → **LetsFix: Set API Key** — paste that provider’s key (stored in Secret Storage).
+3. Optional: **LetsFix: Set Model** or Settings → search `LetsFix`:
+   - `fixit.provider.id` — provider preset
+   - `fixit.provider.baseUrl` — auto-filled; override for Custom
+   - `fixit.provider.model` — e.g. `gpt-4o-mini`, `claude-sonnet-4-5`, `gemini-2.0-flash`
    - `fixit.maxOutputChars` — truncate huge logs before sending
+
+### Supported providers
+
+| Provider | API style | Notes |
+|----------|-----------|--------|
+| OpenAI | OpenAI chat completions | Default |
+| Anthropic (Claude) | Native Messages API | Uses your Anthropic key |
+| Google (Gemini) | Native Gemini stream API | Google AI Studio key |
+| xAI (Grok) | OpenAI-compatible | `api.x.ai` |
+| Moonshot (Kimi) | OpenAI-compatible | `api.moonshot.ai` |
+| Groq | OpenAI-compatible | Fast inference |
+| OpenRouter | OpenAI-compatible | One key → many models |
+| Custom | OpenAI-compatible | Any `/chat/completions` base URL |
 
 ## Usage
 
@@ -49,19 +64,20 @@ LetsFix uses the VS Code **Terminal Shell Integration** API (requires VS Code / 
 ```bash
 npm install
 npm run compile
-npm run package    # creates letsfix-1.0.3.vsix
+npm run package    # creates letsfix-1.1.0.vsix
 ```
 
 ### Manual smoke checklist
 
 - [ ] Fail a command (`npm run does-not-exist`) → status bar appears → Explain
+- [ ] Switch provider (Gemini / Claude) → Set API Key → Explain still works
 - [ ] Git error (`git status` in a non-repo / bad flag) → Fix
 - [ ] TypeScript compile error → Explain Selection with compiler output
 - [ ] Missing API key prompts **Set API Key**, then retries
 
 ## Privacy
 
-Your API key stays in the editor’s secret storage. Terminal output and file snippets are sent only to the API base URL you configure. There is no LetsFix backend in v1.
+Your API key stays in the editor’s secret storage. Terminal output and file snippets are sent only to the API base URL for the provider you chose. There is no LetsFix backend.
 
 ## License
 
