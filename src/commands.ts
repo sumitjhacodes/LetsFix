@@ -2,6 +2,13 @@ import * as vscode from 'vscode';
 import { buildContext, type FixItMode } from './contextBuilder';
 import { MissingApiKeyError, setApiKey, streamChatCompletion } from './llmClient';
 import { clearAndShow } from './output';
+import {
+  applyProviderPreset,
+  getPreset,
+  PROVIDER_PRESETS,
+  resolveProvider,
+  type ProviderPreset,
+} from './providers';
 import type { TerminalCapture } from './terminalCapture';
 
 function getEditorOrTerminalSelection(): string | undefined {
@@ -15,20 +22,96 @@ function getEditorOrTerminalSelection(): string | undefined {
   return undefined;
 }
 
+async function chooseProvider(): Promise<ProviderPreset | undefined> {
+  const current = resolveProvider();
+  const picked = await vscode.window.showQuickPick(
+    PROVIDER_PRESETS.map((p) => ({
+      label: p.label,
+      description: p.id === current.id ? '(current)' : p.defaultModel,
+      detail: p.description,
+      preset: p,
+    })),
+    {
+      title: 'LetsFix: Choose AI Provider',
+      placeHolder: 'OpenAI, Claude, Gemini, Grok, Kimi, Groq, OpenRouter, or Custom…',
+      ignoreFocusOut: true,
+    }
+  );
+  if (!picked) {
+    return undefined;
+  }
+  await applyProviderPreset(picked.preset);
+  void vscode.window.showInformationMessage(
+    `LetsFix provider set to ${picked.preset.label} (${picked.preset.defaultModel}).`
+  );
+  return picked.preset;
+}
+
 async function promptForApiKey(secrets: vscode.SecretStorage): Promise<boolean> {
+  let provider = resolveProvider();
+
+  const chooseFirst = await vscode.window.showQuickPick(
+    [
+      {
+        label: `Use current provider: ${provider.label}`,
+        description: provider.model,
+        action: 'keep' as const,
+      },
+      {
+        label: 'Choose a different provider…',
+        description: 'OpenAI, Claude, Gemini, Grok, Kimi, Groq, OpenRouter, Custom',
+        action: 'change' as const,
+      },
+    ],
+    {
+      title: 'LetsFix: Set API Key',
+      placeHolder: 'Which AI provider is this key for?',
+      ignoreFocusOut: true,
+    }
+  );
+  if (!chooseFirst) {
+    return false;
+  }
+  if (chooseFirst.action === 'change') {
+    const preset = await chooseProvider();
+    if (!preset) {
+      return false;
+    }
+    provider = resolveProvider();
+  }
+
   const key = await vscode.window.showInputBox({
-    title: 'LetsFix: Set API Key',
-    prompt: 'Enter your OpenAI-compatible API key (stored securely in VS Code Secret Storage)',
+    title: `LetsFix: ${provider.label} API Key`,
+    prompt: `Paste your ${provider.label} API key (stored securely in Secret Storage)`,
     password: true,
     ignoreFocusOut: true,
-    placeHolder: 'sk-...',
+    placeHolder: provider.keyPlaceholder,
   });
   if (!key?.trim()) {
     return false;
   }
   await setApiKey(secrets, key);
-  void vscode.window.showInformationMessage('LetsFix API key saved.');
+  void vscode.window.showInformationMessage(`LetsFix API key saved for ${provider.label}.`);
   return true;
+}
+
+async function promptForModel(): Promise<void> {
+  const provider = resolveProvider();
+  const preset = getPreset(provider.id);
+  const model = await vscode.window.showInputBox({
+    title: `LetsFix: Model (${provider.label})`,
+    prompt: 'Model id for explain/fix requests',
+    value: provider.model,
+    ignoreFocusOut: true,
+    placeHolder: preset.defaultModel,
+  });
+  if (!model?.trim()) {
+    return;
+  }
+  await vscode.workspace
+    .getConfiguration('fixit')
+    .update('provider.model', model.trim(), vscode.ConfigurationTarget.Global);
+  void vscode.window.showInformationMessage(`LetsFix model set to ${model.trim()}.`);
 }
 
 async function runMode(
@@ -70,21 +153,19 @@ async function runMode(
     return;
   }
 
+  const provider = resolveProvider();
   const ctx = await buildContext(mode, source);
-  const title =
-    mode === 'explain'
-      ? 'LetsFix — Explain'
-      : 'LetsFix — Fix';
+  const title = mode === 'explain' ? 'LetsFix — Explain' : 'LetsFix — Fix';
   const out = clearAndShow(title);
 
+  out.appendLine(`Provider: ${provider.label} · Model: ${provider.model}`);
   if (source.kind === 'command') {
     out.appendLine(`Command: ${source.command.commandLine || '(unknown)'}`);
     if (source.command.exitCode !== undefined) {
       out.appendLine(`Exit code: ${source.command.exitCode}`);
     }
-    out.appendLine('');
   }
-
+  out.appendLine('');
   out.appendLine('Thinking…');
   out.appendLine('');
 
@@ -154,6 +235,8 @@ export function registerCommands(
     vscode.commands.registerCommand('fixit.explainSelection', () =>
       runMode('explain', capture, secrets, { selectionOnly: true })
     ),
-    vscode.commands.registerCommand('fixit.setApiKey', () => promptForApiKey(secrets))
+    vscode.commands.registerCommand('fixit.setApiKey', () => promptForApiKey(secrets)),
+    vscode.commands.registerCommand('fixit.chooseProvider', () => chooseProvider()),
+    vscode.commands.registerCommand('fixit.setModel', () => promptForModel())
   );
 }
